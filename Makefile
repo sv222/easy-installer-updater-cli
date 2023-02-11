@@ -3,10 +3,10 @@ BINARY_NAME=easy-package-installer
 all: build
 
 build:
-	GOOS=linux GOARCH=amd64 go build -o $(BINARY_NAME) main.go
+	GOOS=linux GOARCH=amd64 go build -o bin/$(BINARY_NAME) main.go
 
 install:
-	mv $(BINARY_NAME) /usr/local/bin
+	mv bin/$(BINARY_NAME) /usr/local/bin
 
 clean:
 	go clean

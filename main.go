@@ -42,7 +42,7 @@ func installAnsible() {
         fmt.Println("Error updating packages.")
         os.Exit(1)
     }
-    cmd = exec.Command("apt", "install", "-y", "ansible")
+    cmd = exec.Command("apt", "install", "-y", "ansible", "-qq")
     err = cmd.Run()
     if err != nil {
         fmt.Println("Error installing Ansible.")
@@ -53,7 +53,7 @@ func installAnsible() {
 
 func installProgram(program string) {
     // Update package cache
-    cmd := exec.Command("ansible", "localhost", "-m", "apt", "-a", "update_cache=yes")
+    cmd := exec.Command("ansible", "localhost", "-m", "apt", "-a", "update_cache=yes", "-vvvv")
     err := cmd.Run()
     if err != nil {
         fmt.Printf("Error updating package cache.\n")
@@ -61,7 +61,7 @@ func installProgram(program string) {
     }
 
     // Install the program
-    cmd = exec.Command("ansible", "localhost", "-m", "ansible.builtin.apt", "-a", fmt.Sprintf("name=%s state=latest", program))
+    cmd = exec.Command("ansible", "localhost", "-m", "ansible.builtin.apt", "-a", fmt.Sprintf("name=%s state=latest", program), "-vvvv")
     err = cmd.Run()
     if err != nil {
         fmt.Printf("Error installing %s.\n", program)
@@ -69,7 +69,7 @@ func installProgram(program string) {
     }
 
     // Start the program
-    cmd = exec.Command("ansible", "localhost", "-m", "service", "-a", fmt.Sprintf("name=%s state=started", program))
+    cmd = exec.Command("ansible", "localhost", "-m", "service", "-a", fmt.Sprintf("name=%s state=started", program), "-vvvv")
     err = cmd.Run()
     if err != nil {
         fmt.Printf("Error starting %s.\n", program)

@@ -1,4 +1,5 @@
-# Easy Package Installer/Updater for Linux (Ubuntu + Ansible)
+# Easy Package Installer/Updater for Linux 
+### A simple wrapper over Ansible that allows you to install the right package in 1 click without writing a playbook, just by passing an argument.
 
 This is a simple CLI utility that helps install and keep specific packages up-to-date on Ubuntu systems. The utility checks for updates to the specified package and automates the process of updating it to the latest version.
 
@@ -18,34 +19,23 @@ This is a simple utility written in Go that can be used to install or update pac
 
 ## Requirements
 
-- Go 1.13+
-- Ubuntu
+- Ubuntu 18.04+
 
 ## Getting started
 
-
-
-### Build from source
-
-1.Clone the repository:
-
+1. Download and Install:
 ```shell
-https://github.com/sv222/easy-installer-updater-cli.git
+curl -o easy-package-installer https://github.com/sv222/easy-installer-updater-cli/releases/download/v0.1.0/easy-package-installer \
+&& chmod +x easy-package-installer \
+&& mv easy-package-installer /usr/local/bin
 ```
 
-2.Build & Install the binary using the Makefile:
-
+2. Usage
 ```shell
-make build && make install
+easy-package-installer [package]
 ```
 
-Note:
-You can specify cli name in Makefile
-BINARY_NAME=easy-package-installer
-
-3.Now you can run the utility to install or update a package.
-
-## Usage
+## Usage Example
 
 To install or update a package, simply run the utility with the name of the package as the last argument.
 
@@ -55,15 +45,39 @@ For example, to install the package `nginx`:
 easy-package-installer nginx
 ```
 
+### Build from source
+
+1. Clone the repository:
+
+```shell
+https://github.com/sv222/easy-installer-updater-cli.git
+```
+
+2. Build & Install the binary using the Makefile:
+
+```shell
+make build && make install
+```
+
+Note:
+You can specify cli name in Makefile
+BINARY_NAME=easy-package-installer
+
+3. Now you can run the utility to install or update a package.
+
 ## Docker Usage
 
 ### Build the Docker Image
 
+```shell
 docker build -t app .
+```
 
 ### Run the Container
 
+```shell
 docker run app [package-name]
+```
 
 ## Contributing
 

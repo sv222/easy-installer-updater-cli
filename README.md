@@ -25,7 +25,7 @@ This is a simple utility written in Go that can be used to install or update pac
 
 1. Download and Install:
 ```shell
-curl -o easy-package-installer https://github.com/sv222/easy-installer-updater-cli/releases/download/v0.1.0/easy-package-installer \
+curl -LJO https://github.com/sv222/easy-installer-updater-cli/releases/download/v0.1.0/easy-package-installer \
 && chmod +x easy-package-installer \
 && mv easy-package-installer /usr/local/bin
 ```

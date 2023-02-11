@@ -52,12 +52,29 @@ func installAnsible() {
 }
 
 func installProgram(program string) {
-    // Run Ansible playbook to install the program
-    cmd := exec.Command("ansible-playbook", "install-program.yml", "-e", fmt.Sprintf("program=%s", program))
+    // Update package cache
+    cmd := exec.Command("ansible", "localhost", "-m", "apt", "-a", "update_cache=yes")
     err := cmd.Run()
+    if err != nil {
+        fmt.Printf("Error updating package cache.\n")
+        os.Exit(1)
+    }
+
+    // Install the program
+    cmd = exec.Command("ansible", "localhost", "-m", "ansible.builtin.apt", "-a", fmt.Sprintf("name=%s state=latest", program))
+    err = cmd.Run()
     if err != nil {
         fmt.Printf("Error installing %s.\n", program)
         os.Exit(1)
     }
-    fmt.Printf("%s installed.\n", program)
+
+    // Start the program
+    cmd = exec.Command("ansible", "localhost", "-m", "service", "-a", fmt.Sprintf("name=%s state=started", program))
+    err = cmd.Run()
+    if err != nil {
+        fmt.Printf("Error starting %s.\n", program)
+        os.Exit(1)
+    }
+
+    fmt.Printf("%s installed and started.\n", program)
 }

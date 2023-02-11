@@ -1,0 +1,12 @@
+---
+- name: Install package
+  hosts: localhost
+  tasks:
+      - name: install
+        ansible.builtin.apt:
+            name: "{{ program }}"
+            state: latest
+      - name: start
+        service:
+            name: "{{ program }}"
+            state: started

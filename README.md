@@ -1,4 +1,5 @@
-# Easy Package Installer/Updater for Linux (Ubuntu + Ansible)
+# 1-click Easy Package Installer/Updater for Linux 
+## (Ansible usage)
 
 This is a simple CLI utility that helps install and keep specific packages up-to-date on Ubuntu systems. The utility checks for updates to the specified package and automates the process of updating it to the latest version.
 

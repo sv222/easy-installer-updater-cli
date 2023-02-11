@@ -2,11 +2,19 @@
 - name: Install package
   hosts: localhost
   tasks:
-      - name: install
-        ansible.builtin.apt:
-            name: "{{ program }}"
-            state: latest
-      - name: start
-        service:
-            name: "{{ program }}"
-            state: started
+    - name: Update package cache
+      apt:
+        update_cache: yes
+    - name: Install program
+      ansible.builtin.apt:
+        name: "{{ program }}"
+        state: latest
+    - name: Start program
+      service:
+        name: "{{ program }}"
+        state: started
+      register: service_result
+    - name: Print results
+      debug:
+        var: service_result
+      when: service_result.failed

@@ -23,7 +23,19 @@ This is a simple utility written in Go that can be used to install or update pac
 
 ## Getting started
 
+```shell
+curl -o easy-package-installer https://github.com/sv222/easy-installer-updater-cli/releases/download/v0.1.0/easy-package-installer && mv easy-package-installer /usr/local/bin
+```
 
+## Usage
+
+To install or update a package, simply run the utility with the name of the package as the last argument.
+
+For example, to install the package `nginx`:
+
+```shell
+easy-package-installer nginx
+```
 
 ### Build from source
 
@@ -45,25 +57,19 @@ BINARY_NAME=easy-package-installer
 
 3.Now you can run the utility to install or update a package.
 
-## Usage
-
-To install or update a package, simply run the utility with the name of the package as the last argument.
-
-For example, to install the package `nginx`:
-
-```shell
-easy-package-installer nginx
-```
-
 ## Docker Usage
 
 ### Build the Docker Image
 
+```shell
 docker build -t app .
+```
 
 ### Run the Container
 
+```shell
 docker run app [package-name]
+```
 
 ## Contributing
 

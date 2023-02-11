@@ -9,9 +9,21 @@ import (
 )
 
 func main() {
-    // Check if Ansible is installed
-    cmd := exec.Command("which", "ansible")
+
+    // Check if Python3 is installed
+    cmd := exec.Command("which", "python3")
     err := cmd.Run()
+    if err != nil {
+        // Check Python3 and install it.
+        fmt.Println("Python3 is not installed.")
+        fmt.Println("Starting Python3 installation.")
+        installPython3()
+        fmt.Println("Python3 is already installed.")
+    }
+
+    // Check if Ansible is installed
+    cmd = exec.Command("which", "ansible")
+    err = cmd.Run()
     if err != nil {
         // Check Ansible and install it.
         fmt.Println("Ansible is not installed.")
@@ -19,6 +31,7 @@ func main() {
         installAnsible()
         fmt.Println("Ansible is already installed.")
         }
+
 
     // Get the name of the program to install
     program := os.Args[len(os.Args)-1]
@@ -33,6 +46,23 @@ func main() {
     } else {
         fmt.Printf("%s is already installed.\n", program)
     }
+}
+
+
+func installPython3() {
+    cmd := exec.Command("apt", "update")
+    err := cmd.Run()
+    if err != nil {
+        fmt.Println("Error updating packages.")
+        os.Exit(1)
+    }
+    cmd = exec.Command("apt", "install", "-y", "python3")
+    err = cmd.Run()
+    if err != nil {
+        fmt.Println("Error installing Python3.")
+        os.Exit(1)
+    }
+    fmt.Println("Python3 installed.")
 }
 
 func installAnsible() {

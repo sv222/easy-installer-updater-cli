@@ -37,4 +37,6 @@ jobs:
                 easy-package-installer nginx
 
             - name: Run Unit Tests
-              run: go test ./...
+              run: |
+                apt update && apt install golang-go -y
+                go test ./...

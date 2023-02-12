@@ -30,16 +30,3 @@ jobs:
             - name: Test CLI
               run: |
                 easy-package-installer nginx
-
-        # Add additional test commands here to test the functionality of the CLI
-            - name: Test with different Ubuntu version 18.04
-              if: always()
-              env:
-              UBUNTU_VERSION: 18.04
-              runs-on: ubuntu-${UBUNTU_VERSION}
-
-            - name: Test with different Ubuntu version 16.04
-              if: always()
-              env:
-              UBUNTU_VERSION: 16.04
-              runs-on: ubuntu-${UBUNTU_VERSION}

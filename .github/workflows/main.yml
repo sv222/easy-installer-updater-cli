@@ -4,8 +4,6 @@ on:
     push:
         branches:
             - main
-        paths-ignore:
-            - "*"
         paths:
             - "*.go"
     pull_request:
@@ -19,8 +17,8 @@ jobs:
         runs-on: self-hosted
 
         strategy:
-          matrix:
-              os: [ubuntu-22.04, ubuntu-20.04, ubuntu-18.04, ubuntu-16.04]
+            matrix:
+                os: [ubuntu-22.04, ubuntu-20.04, ubuntu-18.04, ubuntu-16.04]
 
         steps:
             - name: Checkout code
@@ -37,3 +35,6 @@ jobs:
             - name: Test CLI
               run: |
                 easy-package-installer nginx
+
+            - name: Run Unit Tests
+              run: go test ./...

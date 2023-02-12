@@ -10,7 +10,7 @@ on:
         branches:
             - main
         paths:
-            - "main.yml"
+            - ".github/workflows/main.yml"
             - "*.go"
 
 jobs:

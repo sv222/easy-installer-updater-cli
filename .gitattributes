@@ -1,1 +1,2 @@
-*.go linguist-language=Go
+# exclude all files that are not Go files
+* !$go_extension linguist-language=Go

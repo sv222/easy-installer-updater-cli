@@ -1,4 +1,4 @@
-# Easy Package Installer/Updater for Linux 
+# Easy Package Installer/Updater for Linux (Ansible)
 ### A simple wrapper over Ansible that allows you to install the right package in 1 click without writing a playbook, just by passing an argument.
 
 This is a simple CLI utility that helps install and keep specific packages up-to-date on Ubuntu systems. The utility checks for updates to the specified package and automates the process of updating it to the latest version.
@@ -15,6 +15,7 @@ This is a simple utility written in Go that can be used to install or update pac
 - Installs the specified package if it's not already installed
 - Checks for updates to the specified package
 - Automates the process of updating the package to the latest version
+- Installs Python3 if it's not already installed
 - Installs Ansible if it's not already installed
 
 ## Requirements
@@ -25,9 +26,11 @@ This is a simple utility written in Go that can be used to install or update pac
 
 1. Download and Install:
 ```shell
-curl -LJO https://github.com/sv222/easy-installer-updater-cli/releases/download/v0.1.0/easy-package-installer \
-&& chmod +x easy-package-installer \
-&& mv easy-package-installer /usr/local/bin
+apt update && \
+apt install curl -y && \
+curl -LJO https://github.com/sv222/easy-installer-updater-cli/releases/download/v0.1.0/easy-package-installer && \
+chmod +x easy-package-installer && \
+mv easy-package-installer /usr/local/bin
 ```
 
 2. Usage
@@ -43,6 +46,22 @@ For example, to install the package `nginx`:
 
 ```shell
 easy-package-installer nginx
+```
+Output:
+```shell
+root@79d5ce20a1ca:/# easy-package-installer nginx
+Python3 is not installed.
+Starting Python3 installation.
+Python3 installed.
+Python3 is already installed.
+Ansible is not installed.
+Starting Ansible installation.
+Ansible installed.
+Ansible is already installed.
+nginx is not installed.
+Running Ansible playbook to install nginx...
+nginx installed and started.
+root@79d5ce20a1ca:/#
 ```
 
 ### Build from source

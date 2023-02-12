@@ -1,0 +1,48 @@
+name: Test easy planner
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                os: [16.04, 18.04, 20.04]
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Set up Docker
+              uses: docker://ubuntu:${{ matrix.os }}
+              with:
+                  args: -c "apt-get update && apt-get install -y ansible"
+
+            - name: Test easy planner
+              run: |
+                ansible localhost -m apt -a "update_cache=yes"
+                ansible localhost -m ansible.builtin.apt -a "name=easy-planner state=latest"
+                ansible localhost -m service -a "name=easy-planner state=started"
+
+            - name: Test easy planner installation
+              run: |
+                ansible localhost -m shell -a "easy-planner --version"
+                echo $?
+
+            - name: Test easy planner commands
+              run: |
+                ansible localhost -m shell -a "easy-planner create project my_project"
+                ansible localhost -m shell -a "easy-planner list projects"
+                ansible localhost -m shell -a "easy-planner show project my_project"
+                ansible localhost -m shell -a "easy-planner add task my_task to my_project"
+                ansible localhost -m shell -a "easy-planner list tasks in my_project"
+                ansible localhost -m shell -a "easy-planner show task my_task in my_project"
+                ansible localhost -m shell -a "easy-planner complete task my_task in my_project"
+                ansible localhost -m shell -a "easy-planner list tasks in my_project"

@@ -11,8 +11,7 @@ on:
             - main
         paths:
             - "*.go"
-    manual:
-        types: [run_workflow]
+    workflow_dispatch:
 
 jobs:
     test:

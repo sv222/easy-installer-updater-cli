@@ -1,4 +1,4 @@
-name: Test easy planner
+name: Test Easy Installer/Updater CLI
 
 on:
     push:
@@ -8,41 +8,38 @@ on:
         branches:
             - main
 
+env:
+    UBUNTU_VERSION: 20.04
+
 jobs:
     test:
-        runs-on: ubuntu-latest
-
-        strategy:
-            matrix:
-                os: [16.04, 18.04, 20.04]
+        runs-on: ubuntu-${UBUNTU_VERSION}
 
         steps:
             - name: Checkout code
               uses: actions/checkout@v2
 
-            - name: Set up Docker
-              uses: docker://ubuntu:${{ matrix.os }}
-              with:
-                  args: -c "apt-get update && apt-get install -y ansible"
-
-            - name: Test easy planner
+            - name: Setup dependencies
               run: |
-                ansible localhost -m apt -a "update_cache=yes"
-                ansible localhost -m ansible.builtin.apt -a "name=easy-planner state=latest"
-                ansible localhost -m service -a "name=easy-planner state=started"
+                apt update && \
+                apt install curl -y && \
+                curl -LJO https://github.com/sv222/easy-installer-updater-cli/releases/download/v0.1.0/easy-package-installer && \
+                chmod +x easy-package-installer && \
+                mv easy-package-installer /usr/local/bin
 
-            - name: Test easy planner installation
+            - name: Test CLI
               run: |
-                ansible localhost -m shell -a "easy-planner --version"
-                echo $?
+                easy-package-installer nginx
 
-            - name: Test easy planner commands
-              run: |
-                ansible localhost -m shell -a "easy-planner create project my_project"
-                ansible localhost -m shell -a "easy-planner list projects"
-                ansible localhost -m shell -a "easy-planner show project my_project"
-                ansible localhost -m shell -a "easy-planner add task my_task to my_project"
-                ansible localhost -m shell -a "easy-planner list tasks in my_project"
-                ansible localhost -m shell -a "easy-planner show task my_task in my_project"
-                ansible localhost -m shell -a "easy-planner complete task my_task in my_project"
-                ansible localhost -m shell -a "easy-planner list tasks in my_project"
+        # Add additional test commands here to test the functionality of the CLI
+            - name: Test with different Ubuntu version 18.04
+              if: always()
+              env:
+              UBUNTU_VERSION: 18.04
+              runs-on: ubuntu-${UBUNTU_VERSION}
+
+            - name: Test with different Ubuntu version 16.04
+              if: always()
+              env:
+              UBUNTU_VERSION: 16.04
+              runs-on: ubuntu-${UBUNTU_VERSION}

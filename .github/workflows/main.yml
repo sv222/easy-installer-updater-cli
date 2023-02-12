@@ -8,12 +8,9 @@ on:
         branches:
             - main
 
-env:
-    UBUNTU_VERSION: 20.04
-
 jobs:
     test:
-        runs-on: ubuntu-${UBUNTU_VERSION}
+        runs-on: self-hosted
 
         steps:
             - name: Checkout code

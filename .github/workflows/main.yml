@@ -40,4 +40,4 @@ jobs:
             - name: Run Unit Tests
               run: |
                 apt update && apt install golang-go -y
-                go test ./...
+                go test ./... -v

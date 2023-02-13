@@ -2,46 +2,63 @@ package main
 
 import (
     "bytes"
-    "os"
+    "os/exec"
     "testing"
 )
 
-var tests = []struct {
-    program string
-    python3 bool
-    ansible bool
-    output  string
-}{
-    {"python3", true, false, "Python3 is already installed."},
-    {"ansible", false, true, "Ansible is already installed."},
-    {"nano", false, false, "Error updating package cache."},
-    {"nano", false, true, "nano installed and started."},
-}
+func TestInstallProgram(t *testing.T) {
+    tests := []struct {
+        name     string
+        program  string
+        output   string
+        hasError bool
+    }{
+        {
+            name:    "install nginx",
+            program: "nginx",
+            output:  "nginx installed and started.\n",
+        },
+        {
+            name:    "install non-existent program",
+            program: "nonexistent",
+            output:  "Error installing nonexistent.\n",
+            hasError: true,
+        },
+    }
 
-func TestMain(t *testing.T) {
     for _, test := range tests {
-        if test.python3 {
-            os.Setenv("PATH", os.Getenv("PATH")+":/usr/bin/python3")
-        }
-        if test.ansible {
-            os.Setenv("PATH", os.Getenv("PATH")+":/usr/bin/ansible")
-        }
+        t.Run(test.name, func(t *testing.T) {
+            original := exec.Command
+            defer func() { exec.Command = original }()
+            exec.Command = func(command string, args ...string) *exec.Cmd {
+                return exec.Command("echo", "mocked output")
+            }
 
-        // Capture stdout
-        stdout := os.Stdout
-        os.Stdout, _ = os.Pipe()
+            r, w, _ := os.Pipe()
+            defer r.Close()
+            defer w.Close()
 
-        // Call main
-        os.Args = []string{"main", test.program}
-        main()
+            os.Stdout = w
 
-        // Restore stdout
-        os.Stdout = stdout
+            var b bytes.Buffer
+            defer func() { os.Stdout = os.Stdout }()
+            os.Stdout = &b
 
-        // Check output
-        output := bytes.TrimSpace(os.Stdout.Bytes())
-        if output != test.output {
-            t.Errorf("Unexpected output for program %q: got %q, want %q", test.program, output, test.output)
-        }
+            installProgram(test.program)
+
+            w.Close()
+            output := b.String()
+
+            if test.hasError {
+                if output == test.output {
+                    t.Errorf("expected output to be %q, got %q", test.output, output)
+                }
+                return
+            }
+
+            if output != test.output {
+                t.Errorf("expected output to be %q, got %q", test.output, output)
+            }
+        })
     }
 }

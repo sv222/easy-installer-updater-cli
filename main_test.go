@@ -4,6 +4,7 @@ import (
     "bytes"
     "os/exec"
     "testing"
+    "os"
 )
 
 func TestInstallProgram(t *testing.T) {

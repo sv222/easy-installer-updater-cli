@@ -2,63 +2,71 @@ package main
 
 import (
     "bytes"
+    "fmt"
+    "os"
     "os/exec"
     "testing"
-    "os"
 )
 
-func TestInstallProgram(t *testing.T) {
+func TestMain(t *testing.T) {
     tests := []struct {
         name     string
-        program  string
+        args     []string
         output   string
-        hasError bool
+        wantErr  bool
+        mockFunc func()
     }{
         {
-            name:    "install nginx",
-            program: "nginx",
-            output:  "nginx installed and started.\n",
+            name:   "Case 1: Python3 is not installed",
+            args:   []string{"program_to_install"},
+            output: "Python3 is not installed.\nStarting Python3 installation.\nPython3 installed.\nAnsible is not installed.\nStarting Ansible installation.\nAnsible installed.\nprogram_to_install is not installed.\nRunning Ansible playbook to install program_to_install...\nprogram_to_install installed and started.\n",
+            mockFunc: func() {
+                cmd := exec.Command("which", "python3")
+                err := cmd.Run()
+                if err == nil {
+                    t.Errorf("Expected error, but got nil")
+                }
+            },
         },
         {
-            name:    "install non-existent program",
-            program: "nonexistent",
-            output:  "Error installing nonexistent.\n",
-            hasError: true,
+            name:   "Case 2: Python3 and Ansible are installed",
+            args:   []string{"program_to_install"},
+            output: "program_to_install is not installed.\nRunning Ansible playbook to install program_to_install...\nprogram_to_install installed and started.\n",
+            mockFunc: func() {
+                cmd := exec.Command("which", "python3")
+                err := cmd.Run()
+                if err != nil {
+                    t.Errorf("Unexpected error: %v", err)
+                }
+
+                cmd = exec.Command("which", "ansible")
+                err = cmd.Run()
+                if err != nil {
+                    t.Errorf("Unexpected error: %v", err)
+                }
+            },
         },
     }
-
     for _, test := range tests {
         t.Run(test.name, func(t *testing.T) {
-            original := exec.Command
-            defer func() { exec.Command = original }()
-            exec.Command = func(command string, args ...string) *exec.Cmd {
-                return exec.Command("echo", "mocked output")
-            }
-
-            r, w, _ := os.Pipe()
-            defer r.Close()
-            defer w.Close()
-
-            os.Stdout = w
-
-            var b bytes.Buffer
-            defer func() { os.Stdout = os.Stdout }()
-            os.Stdout = &b
-
-            installProgram(test.program)
-
-            w.Close()
-            output := b.String()
-
-            if test.hasError {
-                if output == test.output {
-                    t.Errorf("expected output to be %q, got %q", test.output, output)
+            defer func() {
+                if r := recover(); r != nil {
+                    t.Errorf("Unexpected panic: %v", r)
                 }
-                return
-            }
+            }()
 
-            if output != test.output {
-                t.Errorf("expected output to be %q, got %q", test.output, output)
+            test.mockFunc()
+
+            oldStdout := os.Stdout
+            defer func() { os.Stdout = oldStdout }()
+            b := &bytes.Buffer{}
+            os.Stdout = b
+
+            os.Args = test.args
+            main()
+
+            if b.String() != test.output {
+                t.Errorf("Expected %q, but got %q", test.output, b.String())
             }
         })
     }

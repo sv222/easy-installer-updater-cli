@@ -2,67 +2,46 @@ package main
 
 import (
     "bytes"
-    "os/exec"
+    "os"
     "testing"
-    "fmt"
 )
 
-func TestInstallPython3(t *testing.T) {
-    cmd := exec.Command("which", "python3")
-    err := cmd.Run()
-    if err == nil {
-        t.Fatalf("Python3 is already installed.")
-    }
-
-    // Redirect the standard output to a buffer
-    var buf bytes.Buffer
-    fmt.Fprintln(&buf, "Starting Python3 installation.")
-    fmt.Fprintln(&buf, "Python3 installed.")
-
-    // Call the installPython3 function
-    installPython3()
-
-    // Check if the expected output is generated
-    if buf.String() != "Starting Python3 installation.\nPython3 installed.\n" {
-        t.Fatalf("Unexpected output.\nExpected: %s\nActual: %s\n", "Starting Python3 installation.\nPython3 installed.\n", buf.String())
-    }
+var tests = []struct {
+    program string
+    python3 bool
+    ansible bool
+    output  string
+}{
+    {"python3", true, false, "Python3 is already installed."},
+    {"ansible", false, true, "Ansible is already installed."},
+    {"nano", false, false, "Error updating package cache."},
+    {"nano", false, true, "nano installed and started."},
 }
 
-func TestInstallAnsible(t *testing.T) {
-    cmd := exec.Command("which", "ansible")
-    err := cmd.Run()
-    if err == nil {
-        t.Fatalf("Ansible is already installed.")
-    }
+func TestMain(t *testing.T) {
+    for _, test := range tests {
+        if test.python3 {
+            os.Setenv("PATH", os.Getenv("PATH")+":/usr/bin/python3")
+        }
+        if test.ansible {
+            os.Setenv("PATH", os.Getenv("PATH")+":/usr/bin/ansible")
+        }
 
-    // Redirect the standard output to a buffer
-    var buf bytes.Buffer
-    fmt.Fprintln(&buf, "Starting Ansible installation.")
-    fmt.Fprintln(&buf, "Ansible installed.")
+        // Capture stdout
+        stdout := os.Stdout
+        os.Stdout, _ = os.Pipe()
 
-    // Call the installAnsible function
-    installAnsible()
+        // Call main
+        os.Args = []string{"main", test.program}
+        main()
 
-    // Check if the expected output is generated
-    if buf.String() != "Starting Ansible installation.\nAnsible installed.\n" {
-        t.Fatalf("Unexpected output.\nExpected: %s\nActual: %s\n", "Starting Ansible installation.\nAnsible installed.\n", buf.String())
-    }
-}
+        // Restore stdout
+        os.Stdout = stdout
 
-func TestInstallProgram(t *testing.T) {
-    program := "nginx"
-
-    // Redirect the standard output to a buffer
-    var buf bytes.Buffer
-    fmt.Fprintf(&buf, "%s is not installed.\n", program)
-    fmt.Fprintf(&buf, "Running Ansible playbook to install %s...\n", program)
-    fmt.Fprintf(&buf, "%s installed and started.\n", program)
-
-    // Call the installProgram function
-    installProgram(program)
-
-    // Check if the expected output is generated
-    if buf.String() != "nginx is not installed.\nRunning Ansible playbook to install nginx...\nginx installed and started.\n" {
-        t.Fatalf("Unexpected output.\nExpected: %s\nActual: %s\n", "nginx is not installed.\nRunning Ansible playbook to install nginx...\nginx installed and started.\n", buf.String())
+        // Check output
+        output := bytes.TrimSpace(os.Stdout.Bytes())
+        if output != test.output {
+            t.Errorf("Unexpected output for program %q: got %q, want %q", test.program, output, test.output)
+        }
     }
 }
